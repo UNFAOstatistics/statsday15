@@ -1,5 +1,8 @@
-# # Doanload data from FAOSTAT
+# 
+# 
+# # # Doanload data from FAOSTAT
 # library(FAOSTAT)
+# library(dplyr)
 # metdat <- data.frame(domainCode  = c("QC","QC","OA"),
 #                      elementCode = c(5510,5510,511),
 #                      itemCode    = c(486,1717,3010),
@@ -10,7 +13,7 @@
 #                                         "total.population"),
 #                      stringsAsFactors = FALSE
 # )
-# # Population data
+# # # Population data
 # i <- 3
 # dat <- getFAOtoSYB(domainCode = metdat[i,"domainCode"], 
 #                    elementCode = metdat[i,"elementCode"],
@@ -18,7 +21,7 @@
 #                    yearRange = metdat[i,"start_year"]:metdat[i,"end_year"])
 # data <- dat[["entity"]]
 # names(data) <- c("FAOST_CODE","Year",metdat[i,"indicator_name"])
-# 
+# # 
 # for (i in 1:2){
 #   dat <- getFAOtoSYB(domainCode = metdat[i,"domainCode"], 
 #                      elementCode = metdat[i,"elementCode"],
@@ -28,9 +31,14 @@
 #   names(dat) <- c("FAOST_CODE","Year",metdat[i,"indicator_name"])
 #   data <- merge(data,dat,by=c("FAOST_CODE","Year"))
 # }
+# 
 # library(countrycode)
 # data$Country <- countrycode(data$FAOST_CODE, "fao", "country.name")
-# data <- data[!is.na(data$banana.production),]
+# data <- data[!is.na(data$banana.h3("Buttons"),
+#                     actionButton("action", label = "Action"),
+#                     br(),
+#                     br(), 
+#                     submitButton("Submit"))production),]
 # data <- data[!is.na(data$cereal.production),]
 # data <- data[!is.na(data$total.population),]
 # # Manual adds
@@ -39,7 +47,7 @@
 # # Lets take the region from gisfao shapefiles
 # library(gisfao)
 # reg <- fao_world@data
-# data2 <- merge(data,reg[c("FAO_CODE","RAF","LAC","RAP","REU","RNE")],by.x="FAOST_CODE",by.y="FAO_CODE")
+# data2 <- reg[c("FAO_CODE","RAF","LAC","RAP","REU","RNE","ADM0_NAME")]
 # data2$Region[data2$RAF == TRUE] <- "Africa"
 # data2$Region[data2$RNE == TRUE] <- "Near East and North Africa"
 # data2$Region[data2$LAC == TRUE] <- "Latin America and the Caribbean"
@@ -47,14 +55,17 @@
 # data2$Region[data2$REU == TRUE] <- "Europe and Central Asia"
 # data2$Region[is.na(data2$Region)] <- "Other regions"
 # 
-# data <- data2[c(2,3,4,5,6,12)]
+# names(data2)[names(data2)=="FAO_CODE"] <- "FAOST_CODE"
+# names(data2)[names(data2)=="ADM0_NAME"] <- "Country"
 # 
-# save(data, file="data.RData")
-load("data.RData")
+# reg <- data2
+# 
+# save(reg, file="reg.RData")
+load("reg.RData")
 
-data$Region <- as.factor(data$Region)
-data$Country <- as.factor(data$Country)
-data$Year <- as.numeric(data$Year)
+# data$Region <- as.factor(data$Region)
+# data$Country <- as.factor(data$Country)
+# data$Year <- as.numeric(data$Year)
 
 
 # data3 <- readRDS("healthexp.Rds")

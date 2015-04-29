@@ -2,27 +2,13 @@
 #   https://github.com/jcheng5/googleCharts
 # Install:
 #   devtools::install_github("jcheng5/googleCharts")
-library(googleCharts)
-
-# Use global max/min for axes so the view window stays
-# constant as the user moves between years
-xlim <- list(
-  min = min(data$banana.production) - 500000,
-  max = max(data$banana.production) + 500000
-)
-ylim <- list(
-  min = min(data$cereal.production),
-  max = max(data$cereal.production)*1.03
-)
 
 shinyUI(fluidPage(
 #   tags$div(class = "header", checked = NA,
 #            tags$p("Ready to take the Shiny tutorial? If so"),
 #            tags$img(src = "logos/logo200.png")),
-  # This line loads the Google Charts JS library
-  googleChartsInit(),
-  
-  # Use the Google webfont "Source Sans Pro"
+
+    # Use the Google webfont "Source Sans Pro"
   tags$link(
     href=paste0("http://fonts.googleapis.com/css?",
                 "family=Source+Sans+Pro:300,600,300italic"),
@@ -30,58 +16,39 @@ shinyUI(fluidPage(
   tags$style(type="text/css",
              "body {font-family: 'Source Sans Pro'}"
   ),
-  
-  h2("interactive Bubbles using FAOSTAT data"),
-  
-  googleBubbleChart("chart",
-                    width="100%", height = "475px",
-                    # Set the default options for this chart; they can be
-                    # overridden in server.R on a per-update basis. See
-                    # https://developers.google.com/chart/interactive/docs/gallery/bubblechart
-                    # for option documentation.
-                    options = list(
-                      fontName = "Source Sans Pro",
-                      fontSize = 13,
-                      # Set axis labels and ranges
-                      hAxis = list(
-                        title = "Banana production, total quantity (tonnes)",
-                        viewWindow = xlim
-                      ),
-                      vAxis = list(
-                        title = "Cereal Production, total wuantity (tonnes)",
-                        viewWindow = ylim
-                      ),
-                      # The default padding is a little too spaced out
-                      chartArea = list(
-                        top = 50, left = 75,
-                        height = "75%", width = "75%"
-                      ),
-                      # Allow pan/zoom
-                      explorer = list(),
-                      # Set bubble visual props
-                      bubble = list(
-                        opacity = 0.4, stroke = "none",
-                        # Hide bubble label
-                        textStyle = list(
-                          color = "none"
-                        )
-                      ),
-                      # Set fonts
-                      titleTextStyle = list(
-                        fontSize = 16
-                      ),
-                      tooltip = list(
-                        textStyle = list(
-                          fontSize = 12
-                        )
-                      )
-                    )
-  ),
+  tags$h2("Select data"),
+  tags$hr(),
   fluidRow(
-    shiny::column(4, offset = 4,
-                  sliderInput("year", "Year",
-                              min = min(data$Year), max = max(data$Year),
-                              value = min(data$Year), animate = TRUE)
+    shiny::column(4, uiOutput("group")
+    ),
+    shiny::column(4, uiOutput("domain")
+    ),
+    shiny::column(4, uiOutput("indOrAgg")
     )
+    ),
+  fluidRow(
+    shiny::column(4, uiOutput("item")
+    ),
+    shiny::column(4, uiOutput("element")
+    ),
+    shiny::column(4, uiOutput("yearRange")
+    )
+  ),
+  tags$h2("Preview data"),
+  tags$hr(),
+  fluidRow(
+      dataTableOutput("mytable")
+      ),
+  tags$h2("Preview time-series"),
+  tags$hr(),
+  fluidRow(
+    plotOutput("timeSeries")
+  ),
+  tags$h2("Download data"),
+  tags$hr(),
+   fluidRow(
+     shiny::column(4, downloadButton('downloadData', 'Download')
+     )
+   )
   )
-))
+)
