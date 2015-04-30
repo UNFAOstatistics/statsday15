@@ -9,12 +9,15 @@ shinyUI(fluidPage(
 #            tags$img(src = "logos/logo200.png")),
 
     # Use the Google webfont "Source Sans Pro"
-  tags$link(
-    href=paste0("http://fonts.googleapis.com/css?",
-                "family=Source+Sans+Pro:300,600,300italic"),
-    rel="stylesheet", type="text/css"),
-  tags$style(type="text/css",
-             "body {font-family: 'Source Sans Pro'}"
+  tags$head(
+    # Include our custom CSS
+    includeCSS("styles.css"),
+    # Hide the red error messages!!!
+    tags$style(type="text/css",
+               ".shiny-output-error { visibility: hidden; }",
+               ".shiny-output-error:before { visibility: hidden; }"
+    )
+    
   ),
   tags$h2("Select data"),
   tags$hr(),

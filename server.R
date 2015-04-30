@@ -1,28 +1,17 @@
 library(dplyr)
-library(FAOSTAT)
 library(ggplot2)
 
 shinyServer(function(input, output, session) {
   
-  # Provide explicit colors for regions, so they don't get recoded when the
-  # different series happen to be ordered differently from year to year.
-  # http://andrewgelman.com/2014/09/11/mysterious-shiny-things/
-  defaultColors <- c("#3366cc", "#dc3912", "#ff9900", "#109618", "#990099", "#0099c6", "#dd4477")
-  series <- structure(
-    lapply(defaultColors, function(color) { list(color=color) }),
-    names = levels(data$Region)
-  )
-  
-  
+
   output$group <- renderUI({
-    groupTable <- FAOmetaTable[[1]]
     groupNames <- groupTable[["groupName"]]
     opts <- selectInput("gc_name", "Which Group are you looking for:",choices = groupNames, selected=groupNames[2])
     list(opts)
   })
   
   output$domain <- renderUI({
-    domainTable <- FAOmetaTable[[2]]
+    
     gc <- groupTable[groupTable$groupName == input$gc_name,]$groupCode
 #     x <- groupNames[1]
 #     gc <- groupTable[groupTable$groupName == x,]$groupCode
@@ -47,10 +36,8 @@ shinyServer(function(input, output, session) {
   
   output$item <- renderUI({
     
-    itemTable <- FAOmetaTable[[3]]
-    itemAggTable <- FAOmetaTable[[4]]
     dc <- domainTable[domainTable$domainName == input$domain_name,]$domainCode
-    agg <- ind_or_agg[ind_or_agg$name == input$ind_or_agg,]$code
+#    agg <- ind_or_agg[ind_or_agg$name == input$ind_or_agg,]$code
 #     x <- values[2]
 #     agg <- ind_or_agg[ind_or_agg$name == x,]$code
     #if (agg == 1) {
@@ -66,7 +53,7 @@ shinyServer(function(input, output, session) {
   
   output$element <- renderUI({
     
-    elementTable <- FAOmetaTable[[5]]
+    
     dc <- domainTable[domainTable$domainName == input$domain_name,]$domainCode
     subelementTable = elementTable[elementTable$domainCode == dc,]
     values <- as.character(subelementTable$elementName)
@@ -92,7 +79,7 @@ shinyServer(function(input, output, session) {
     data <- fao_data()
     maxim <- max(data$Year)
     minim <- min(data$Year)
-    opts <- sliderInput("year_range", "Select year range", min = minim, max = maxim, value = c(minim,maxim))
+    opts <- sliderInput("year_range", "Select year range", min = minim, max = maxim, value = c(minim,maxim), step = 1)
     list(opts)
   })
   
