@@ -1,6 +1,6 @@
 # README
 
-Based on <http://shiny.rstudio.com/gallery/google-charts.html>
+An experimental GUI for [FAOSTAT](http://faostat.fao.org/)-database
 
 ### License
 
