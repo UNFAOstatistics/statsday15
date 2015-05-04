@@ -79,6 +79,8 @@ load("FAOmetaTable.RData")
 load("FAOcountryProfile.RData")
 
 
+str(FAOmetaTable)
+
 groupTable <- FAOmetaTable[[1]]
 domainTable <- FAOmetaTable[[2]]
 itemTable <- FAOmetaTable[[3]]

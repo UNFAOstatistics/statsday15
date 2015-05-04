@@ -126,8 +126,126 @@ shinyServer(function(input, output, session) {
     print(p)
   })
   
+#### Bivariate stuff
 
 
+output$var_x_item <- renderUI({
+  itemNames <- itemTable[["itemName"]]
+  opts <- selectizeInput('varXitem', "Which item are you looking for:", choices = itemNames, selected=itemNames[1], multiple = FALSE)
+  list(opts)
+})
+
+output$var_x_element <- renderUI({
+  domainCode <- itemTable[itemTable[["itemName"]] == input$varXitem, ]$domainCode
+  elementNames <- as.character(elementTable[elementTable[["domainCode"]] %in% domainCode, ]$elementName)
+  opts <- selectizeInput('varXelement', "Which element are you looking for:", choices = elementNames, multiple = FALSE)
+  list(opts)
+})
+
+
+output$var_y_item <- renderUI({
+  itemNames <- itemTable[["itemName"]]
+  opts <- selectizeInput('varYitem', "Which item are you looking for:", choices = itemNames, selected=itemNames[3], multiple = FALSE)
+  list(opts)
+})
+
+output$var_y_element <- renderUI({
+  domainCode <- itemTable[itemTable[["itemName"]] == input$varYitem, ]$domainCode
+  elementNames <- as.character(elementTable[elementTable[["domainCode"]] %in% domainCode, ]$elementName)
+  opts <- selectizeInput('varYelement', "Which element are you looking for:", choices = elementNames, multiple = FALSE)
+  list(opts)
+})
+
+
+bivar_data <- reactive({
+  
+  domainCodeX <- itemTable[itemTable[["itemName"]] == input$varXitem, ]$domainCode
+  domainCodeY <- itemTable[itemTable[["itemName"]] == input$varYitem, ]$domainCode
+  
+  dcX <- domainCodeX
+  ecX <- elementTable[elementTable$elementName == input$varXelement & elementTable$domainCode == dcX,]$elementCode
+  icX <- itemTable[itemTable[["itemName"]] == input$varXitem, ]$itemCode
+  
+  dcY <- domainCodeY
+  ecY <- elementTable[elementTable$elementName == input$varYelement & elementTable$domainCode == dcY,]$elementCode
+  icY <- itemTable[itemTable[["itemName"]] == input$varYitem, ]$itemCode
+  
+  
+  Xvar <- getFAOtoSYB(domainCode = dcX, 
+                     elementCode = ecX,
+                     itemCode = icX)
+  X <- Xvar[["entity"]]
+  
+  Yvar <- getFAOtoSYB(domainCode = dcY, 
+                      elementCode = ecY,
+                      itemCode = icY)
+  Y <- Yvar[["entity"]]
+
+  XY <- inner_join(X, Y, by = c("FAOST_CODE","Year"))
+  na.omit(XY) 
+    
+})
+
+
+output$bivar_year <- renderUI({
+  year_ss <- bivar_data()
+  unique(year_ss$Year)
+  opts <- sliderInput("bivarYear", "", min = min(year_ss$Year), max = max(year_ss$Year), value = max(year_ss$Year), step = 1)
+  list(opts)
+})
+
+
+
+
+
+output$single_scatter <- reactivePlot(function() {
+  
+  plot_data <- bivar_data()
+  plot_data <- plot_data[plot_data$Year == input$bivarYear,]
+  names(plot_data) <- c("FAOST_CODE","Year","valueX","valueY")
+  plot_data <- merge(plot_data,reg,by="FAOST_CODE")
+  
+  p <- ggplot(plot_data, aes(x=valueX, y=valueY,group=1,color=Region,label=Country))
+  p <- p + geom_point()
+  p <- p + geom_text()
+  p <- p + theme_minimal() + 
+    theme(legend.position = "top") + 
+    theme(text = element_text(family = "Open Sans", size= 12)) +
+    theme(legend.title = element_text(size = 12, face = "bold")) +
+    theme(axis.text= element_text(size = 10)) +
+    theme(axis.title = element_text(size = 12, face = "bold")) +
+    theme(legend.text= element_text(size = 12)) +
+    theme(strip.text = element_text(size = 14, face="bold")) +
+    guides(colour = guide_legend(override.aes = list(size=4)))
+  p <- p + labs(x=input$varXitem,y=input$varYitem)
+  p <- p + geom_smooth(method = "loess")
+  print(p)
+})
+
+
+output$multi_scatter <- reactivePlot(function() {
+  
+  plot_data <- bivar_data()
+  names(plot_data) <- c("FAOST_CODE","Year","valueX","valueY")
+  plot_data <- merge(plot_data,reg,by="FAOST_CODE")
+  
+  p <- ggplot(plot_data, aes(x=valueX, y=valueY, group=1,color=Region,label=Country))
+  p <- p + geom_point()
+  p <- p + geom_text(size=2.5)
+  p <- p + theme_minimal() + 
+    theme(legend.position = "top") + 
+    theme(text = element_text(family = "Open Sans", size= 12)) +
+    theme(legend.title = element_text(size = 12, face = "bold")) +
+    theme(axis.text= element_text(size = 10)) +
+    theme(axis.title = element_text(size = 12, face = "bold")) +
+    theme(legend.text= element_text(size = 12)) +
+    theme(strip.text = element_text(size = 14, face="bold")) +
+    guides(colour = guide_legend(override.aes = list(size=4)))
+  p <- p + labs(x=input$varXitem,y=input$varyitem)
+  p <- p + facet_wrap(~Year)
+  p <- p + geom_smooth(method = "loess")
+  print(p)
+})
 
 
 })
