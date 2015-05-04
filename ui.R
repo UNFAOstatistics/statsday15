@@ -19,7 +19,7 @@ shinyUI(navbarPage("FAOSTAT data explorer", id="nav",
                                   
                                 ), 
   #tags$style(type="text/css", "body {padding-left: 70px;}"),
-  tags$h2("Select data"),
+  tags$h4("Select data"),
   tags$hr(),
   fluidRow(
     shiny::column(4, uiOutput("group")
@@ -37,22 +37,17 @@ shinyUI(navbarPage("FAOSTAT data explorer", id="nav",
     shiny::column(4, uiOutput("yearRange")
     )
   ),
-  tags$h2("Preview data"),
   tags$hr(),
   fluidRow(
-      dataTableOutput("mytable")
-      ),
-  tags$h2("Preview time-series"),
-  tags$hr(),
-  fluidRow(
-    plotOutput("timeSeries")
+    shiny::column(5, tags$h4("Preview data")),
+    shiny::column(5, tags$h4("Display time-series")),
+    shiny::column(2, tags$h4("Download data"))
   ),
-  tags$h2("Download data"),
-  tags$hr(),
-   fluidRow(
-     shiny::column(4, downloadButton('downloadData', 'Download')
-     )
-   )
+  fluidRow(
+    shiny::column(5, dataTableOutput("mytable")),
+    shiny::column(5, plotOutput("timeSeries")),
+    shiny::column(2, downloadButton('downloadData', 'Download'))
+  )
   )
 ),
 
